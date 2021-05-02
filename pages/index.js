@@ -1,33 +1,61 @@
-import Head from 'next/head'
-import Typography from '@material-ui/core/Typography';
 import ResponsiveDrawerLayout from '../components/ResponsiveDrawerLayout';
+import { gql, useLazyQuery } from "@apollo/client";
+
+const CHARACTER_QUERY = gql`
+  query queryCharacter($search: String!) {
+    Character (search: $search) {
+      name {
+        full
+        native
+      }
+      image {
+        medium
+      } 
+    }
+  }
+`;
+
+const STAFF_QUERY = gql`
+  query queryStaff($search: String!) {
+    Staff (search: $search) {
+      name {
+        full
+        native
+      }
+      image {
+        medium
+      }
+    }
+  }
+`;
 
 export default function Home() {
+
+  const [getCharacter, characterResult] = useLazyQuery(CHARACTER_QUERY);
+  const [getStaff, staffResult] = useLazyQuery(STAFF_QUERY);
+  
   return (
     <ResponsiveDrawerLayout>
-      <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Rhoncus dolor purus non enim praesent elementum
-          facilisis leo vel. Risus at ultrices mi tempus imperdiet. Semper risus in hendrerit
-          gravida rutrum quisque non tellus. Convallis convallis tellus id interdum velit laoreet id
-          donec ultrices. Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra nibh cras.
-          Metus vulputate eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo quis
-          imperdiet massa tincidunt. Cras tincidunt lobortis feugiat vivamus at augue. At augue eget
-          arcu dictum varius duis at consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem
-          donec massa sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper eget nulla
-          facilisi etiam dignissim diam. Pulvinar elementum integer enim neque volutpat ac
-          tincidunt. Ornare suspendisse sed nisi lacus sed viverra tellus. Purus sit amet volutpat
-          consequat mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-          vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra accumsan in. In
-          hendrerit gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem et
-          tortor. Habitant morbi tristique senectus et. Adipiscing elit duis tristique sollicitudin
-          nibh sit. Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra maecenas
-          accumsan lacus vel facilisis. Nulla posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
+       {characterResult.data && characterResult.data.Character &&
+    <div>
+      <div>{characterResult.data.Character.name.full}</div>
+      <div>{characterResult.data.Character.name.native}</div>
+      <img src={characterResult.data.Character.image.medium} alt=""/>
+    </div>
+    }
+    <button onClick={() => getCharacter({ variables: { search: 'D' } })}>
+      search for "D"
+    </button>
+    {staffResult.data && staffResult.data.Staff &&
+    <div>
+      <div>{staffResult.data.Staff.name.full}</div>
+      <div>{staffResult.data.Staff.name.native}</div>
+      <img src={staffResult.data.Staff.image.medium} alt=""/>
+    </div>
+    }
+    <button onClick={() => getStaff({ variables: { search: "中村" } })}>
+      search for "中村"
+    </button>
     </ResponsiveDrawerLayout>
   )
 }
